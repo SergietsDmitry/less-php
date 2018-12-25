@@ -105,22 +105,34 @@ class Less_Visitor_toCSS extends Less_VisitorReplacing{
 			return $this->visitRulesetRoot( $rulesetNode );
 		}
 
-		$rulesets = array();
+		$rulesets = [];
+        
 		$rulesetNode->paths = $this->visitRulesetPaths($rulesetNode);
-
-
-		// Compile rules and rulesets
-		$nodeRuleCnt = $rulesetNode->rules?count($rulesetNode->rules):0;
-		for( $i = 0; $i < $nodeRuleCnt; ){
+        
+        // Compile rules and rulesets
+        $nodeRuleCnt = 0;
+        
+        if ($rulesetNode->rules && (is_object($rulesetNode->rules) || is_array($rulesetNode->rules)))
+        {
+            $nodeRuleCnt = count($rulesetNode->rules);
+        }
+        
+		for ($i = 0; $i < $nodeRuleCnt;)
+        {
 			$rule = $rulesetNode->rules[$i];
 
-			if( property_exists($rule,'rules') ){
+			if (property_exists($rule,'rules'))
+            {
 				// visit because we are moving them out from being a child
 				$rulesets[] = $this->visitObj($rule);
+                
 				array_splice($rulesetNode->rules,$i,1);
+                
 				$nodeRuleCnt--;
+                
 				continue;
 			}
+            
 			$i++;
 		}
 
